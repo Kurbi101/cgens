@@ -12,29 +12,30 @@
 	typedef struct _node_name _node_name;                                      \
                                                                                \
 	struct _node_name {                                                        \
-		const _type data;                                                      \
+		_type data;                                                            \
 		_node_name *left;                                                      \
 		_node_name *right;                                                     \
 		size_t height;                                                         \
 	};                                                                         \
                                                                                \
-	_node_name *init_node(const _type data) {                                  \
-		_node_name *node = (_node_name *)malloc(sizeof(_node_name));           \
-		node->left = node->right = NULL;                                       \
-		node->height = 0;                                                      \
-		return node;                                                           \
+	_node_name *init_##_node_name(_type data) {                                \
+		_node_name *__node = (_node_name *)malloc(sizeof(_node_name));         \
+		__node->left = __node->right = NULL;                                   \
+		__node->data = data;                                                   \
+		__node->height = 0;                                                    \
+		return __node;                                                         \
 	}                                                                          \
                                                                                \
-	static inline size_t get_height(_node_name *node) {                        \
-		if (!node)                                                             \
+	static inline size_t get_height(_node_name *__node) {                      \
+		if (!__node)                                                           \
 			return 0;                                                          \
-		return node->height;                                                   \
+		return __node->height;                                                 \
 	}                                                                          \
                                                                                \
-	size_t get_balance(_node_name *node) {                                     \
-		if (!node)                                                             \
+	size_t get_balance(_node_name *__node) {                                   \
+		if (!__node)                                                           \
 			return 0;                                                          \
-		return get_height(node->left) - get_height(node->right);               \
+		return get_height(__node->left) - get_height(__node->right);           \
 	}                                                                          \
                                                                                \
 	static inline size_t max(size_t x, size_t y) { return x > y ? x : y; }     \
@@ -59,7 +60,7 @@
 		return y;                                                              \
 	}                                                                          \
                                                                                \
-	_node_name *insert(_node_name *node, const _type key) {                    \
+	_node_name *insert(_node_name *node, _type key) {                          \
 		if (!node) {                                                           \
 			node = init_node(key);                                             \
 			return node;                                                       \
@@ -89,5 +90,4 @@
 		}                                                                      \
 		return node;                                                           \
 	}
-    
 #endif
