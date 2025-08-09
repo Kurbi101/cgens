@@ -26,7 +26,7 @@
 		return __node;                                                         \
 	}                                                                          \
                                                                                \
-	static inline size_t get_height(_node_name *__node) {                      \
+	static inline size_t __##_node_name##_get_height(_node_name *__node) {     \
 		if (!__node)                                                           \
 			return 0;                                                          \
 		return __node->height;                                                 \
@@ -35,28 +35,43 @@
 	size_t get_balance(_node_name *__node) {                                   \
 		if (!__node)                                                           \
 			return 0;                                                          \
-		return get_height(__node->left) - get_height(__node->right);           \
+		return __##_node_name##_get_height(__node->left) -                     \
+			   __##_node_name##_get_height(__node->right);                     \
 	}                                                                          \
                                                                                \
-	static inline size_t max(size_t x, size_t y) { return x > y ? x : y; }     \
+	static inline size_t __##_node_name##_max(size_t x, size_t y) {            \
+		return x > y ? x : y;                                                  \
+	}                                                                          \
                                                                                \
-	_node_name *right_rotation(_node_name *y) {                                \
+	_node_name *__##_node_name##_right_rotate(_node_name *y) {                 \
 		_node_name *x = y->left;                                               \
 		_node_name *T2 = x->right;                                             \
 		x->right = y;                                                          \
 		y->left = T2;                                                          \
-		y->height = max(get_height(y->left), get_height(y->right)) + 1;        \
-		x->height = max(get_height(x->left), get_height(x->right)) + 1;        \
+		y->height =                                                            \
+			__##_node_name##_max(__##_node_name##_get_height(y->left),         \
+								 __##_node_name##_get_height(y->right)) +      \
+			1;                                                                 \
+		x->height =                                                            \
+			__##_node_name##_max(__##_node_name##_get_height(x->left),         \
+								 __##_node_name##_get_height(x->right)) +      \
+			1;                                                                 \
 		return x;                                                              \
 	}                                                                          \
                                                                                \
-	_node_name *left_rotation(_node_name *x) {                                 \
+	_node_name *__##_node_name##_left_rotate(_node_name *x) {                  \
 		_node_name *y = x->right;                                              \
 		_node_name *T2 = y->left;                                              \
 		y->left = x;                                                           \
 		x->right = T2;                                                         \
-		x->height = max(get_height(x->left), get_height(x->right)) + 1;        \
-		y->height = max(get_height(y->left), get_height(y->right)) + 1;        \
+		x->height =                                                            \
+			__##_node_name##_max(__##_node_name##_get_height(x->left),         \
+								 __##_node_name##_get_height(x->right)) +      \
+			1;                                                                 \
+		y->height =                                                            \
+			__##_node_name##_max(__##_node_name##_get_height(y->left),         \
+								 __##_node_name##_get_height(y->right)) +      \
+			1;                                                                 \
 		return y;                                                              \
 	}                                                                          \
                                                                                \
@@ -74,19 +89,21 @@
 			return node;                                                       \
 		}                                                                      \
 		node->height =                                                         \
-			max(get_height(node->left), get_height(node->right)) + 1;          \
+			__##_node_name##_max(__##_node_name##_get_height(node->left),      \
+								 __##_node_name##_get_height(node->right)) +   \
+			1;                                                                 \
 		int balance = get_balance(node);                                       \
 		if (balance > 1 && _cmp(key, node->left->data) < 0)                    \
-			return right_rotation(node);                                       \
+			return __##_node_name##_right_rotate(node);                        \
 		if (balance < -1 && _cmp(key, node->right->data) > 0)                  \
-			return left_rotation(node);                                        \
+			return __##_node_name##_left_rotate(node);                         \
 		if (balance > 1 && _cmp(key, node->left->data) > 0) {                  \
-			node->left = left_rotation(node->left);                            \
-			return right_rotation(node);                                       \
+			node->left = __##_node_name##_left_rotate(node->left);             \
+			return __##_node_name##_right_rotate(node);                        \
 		}                                                                      \
 		if (balance < -1 && _cmp(key, node->right->data) < 0) {                \
-			node->right = right_rotation(node->right);                         \
-			return left_rotation(node);                                        \
+			node->right = __##_node_name##_right_rotate(node->right);          \
+			return __##_node_name##_left_rotate(node);                         \
 		}                                                                      \
 		return node;                                                           \
 	}

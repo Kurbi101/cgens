@@ -6,14 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef void(destructor)(void *);
-
-#define IS_POINTER_TYPE(T)                                                     \
-	(__builtin_types_compatible_p(T, void *) ||                                \
-	 __builtin_classify_type((T)0) == 5)
-
 #define DEFINE_STACK(_name, _type)                                             \
                                                                                \
+	typedef void(_name##_destructor)(_type);                                   \
 	typedef struct _name _name;                                                \
 	typedef struct _##_name##_node _##_name##_node;                            \
 	typedef struct _name##_iter _name##_iter;                                  \
@@ -87,7 +82,7 @@ typedef void(destructor)(void *);
                                                                                \
 	bool _name##_is_empty(_name *s) { return s->len == 0; }                    \
                                                                                \
-	void _name##_clear(_name *s, destructor d) {                               \
+	void _name##_clear(_name *s, _name##_destructor d) {                       \
 		while (!_name##_is_empty(s)) {                                         \
 			_type _temp = _name##_pop(s);                                      \
 			if (d) {                                                           \
