@@ -128,6 +128,10 @@
 		__##name##_quicksort(v, 0, v->len - 1, _cmp);                          \
 	}                                                                          \
                                                                                \
+	type name##_first(name *v) { return name##_get(v, 0); }                    \
+                                                                               \
+	type name##_last(name *v) { return name##_get(v, v->len - 1); }            \
+                                                                               \
 	name##_iter *name##_to_iter(name *v) {                                     \
 		name##_iter *it = malloc(sizeof(name##_iter));                         \
 		if (!it) {                                                             \
