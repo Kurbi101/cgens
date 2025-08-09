@@ -32,7 +32,7 @@
 		return __node->height;                                                 \
 	}                                                                          \
                                                                                \
-	size_t get_balance(_node_name *__node) {                                   \
+	size_t _name##_get_balance(_node_name *__node) {                           \
 		if (!__node)                                                           \
 			return 0;                                                          \
 		return __##_node_name##_get_height(__node->left) -                     \
@@ -75,16 +75,15 @@
 		return y;                                                              \
 	}                                                                          \
                                                                                \
-	_node_name *insert(_node_name *node, _type key) {                          \
+	_node_name *_node_name##_insert(_node_name *node, _type key) {                          \
 		if (!node) {                                                           \
 			node = init_node(key);                                             \
 			return node;                                                       \
 		}                                                                      \
-		int compare_val = _cmp(key, node->data);                               \
 		if (_cmp(key, node->data) < 0) {                                       \
-			node->left = insert(node->left, key);                              \
+			node->left = _node_name##_insert(node->left, key);                              \
 		} else if (_cmp(key, node->data) > 0) {                                \
-			node->right = insert(node->right, key);                            \
+			node->right = _node_name##_insert(node->right, key);                            \
 		} else {                                                               \
 			return node;                                                       \
 		}                                                                      \
@@ -92,7 +91,7 @@
 			__##_node_name##_max(__##_node_name##_get_height(node->left),      \
 								 __##_node_name##_get_height(node->right)) +   \
 			1;                                                                 \
-		int balance = get_balance(node);                                       \
+		int balance = _name##_get_balance(node);                               \
 		if (balance > 1 && _cmp(key, node->left->data) < 0)                    \
 			return __##_node_name##_right_rotate(node);                        \
 		if (balance < -1 && _cmp(key, node->right->data) > 0)                  \
@@ -106,5 +105,66 @@
 			return __##_node_name##_left_rotate(node);                         \
 		}                                                                      \
 		return node;                                                           \
+	}                                                                          \
+                                                                               \
+	_node_name *__##_node_name##_min_node(_node_name *_head) {                 \
+		_node_name *curr = _head;                                              \
+		while (curr->left)                                                     \
+			curr = curr->left;                                                 \
+		return curr;                                                           \
+	}                                                                          \
+                                                                               \
+	_node_name *_node_name##_remove(_node_name *root, _type key) {             \
+		if (!root)                                                             \
+			return root;                                                       \
+                                                                               \
+		if (_cmp(key, root->data) < 0)                                         \
+			root->left = _node_name##_remove(root->left, key);                 \
+		else if (_cmp(key, root->data) > 0)                                    \
+			_node_name##_remove(root->right, key);                             \
+		else {                                                                 \
+                                                                               \
+			if (!root->left || !root->right) {                                 \
+				_node_name *temp = root->left ? root->left : root->right;      \
+                                                                               \
+				if (!temp) {                                                   \
+					temp = root;                                               \
+					root = NULL;                                               \
+				} else {                                                       \
+					*root = *temp;                                             \
+					free(temp);                                                \
+				}                                                              \
+			} else {                                                           \
+				_node_name *temp = __##_node_name##_min_node(root->right);     \
+				root->data = temp->data;                                       \
+				root->right = _node_name##_remove(root->right, temp->data);    \
+			}                                                                  \
+		}                                                                      \
+		if (!root)                                                             \
+			return root;                                                       \
+		root->height =                                                         \
+			1 + __node_max(__##_node_name##_get_height(root->left),            \
+						   __##_node_name##_get_height(root->right));          \
+		int balance = _name##_get_balance(root);                               \
+                                                                               \
+		if (balance > 1 && _name##_get_balance(root->left) >= 0) {             \
+			return __##_node_name##_right_rotate(root);                        \
+		}                                                                      \
+                                                                               \
+		if (balance > 1 && _name##_get_balance(root->left) < 0) {              \
+			root->left = __##_node_name##_left_rotate(root->left);             \
+			return __##_node_name##_right_rotate(root);                        \
+		}                                                                      \
+                                                                               \
+		if (balance < -1 && _name##_get_balance(root->right) <= 0) {           \
+			return __##_node_name##_left_rotate(root);                         \
+		}                                                                      \
+                                                                               \
+		if (balance < -1 && _name##_get_balance(root->right) > 0) {            \
+			root->right = __##_node_name##_right_rotate(root->right);          \
+			return __##_node_name##_left_rotate(root);                         \
+		}                                                                      \
+                                                                               \
+		return root;                                                           \
 	}
 #endif
