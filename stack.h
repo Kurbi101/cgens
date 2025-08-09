@@ -1,6 +1,7 @@
 #ifndef _STACK_H
 #define _STACK_H
 
+#include "error.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,9 +34,7 @@
 			_##_name##_node *head =                                            \
 				(_##_name##_node *)malloc(sizeof(_##_name##_node));            \
 			if (!head) {                                                       \
-				fprintf(stderr, "<<<ERROR: malloc failed inside stack push "   \
-								"function >>>\n");                             \
-				abort();                                                       \
+				ERROR("Malloc failed inside stack push");                      \
 			}                                                                  \
 			head->data = data;                                                 \
 			s->head = head;                                                    \
@@ -45,10 +44,7 @@
 		_##_name##_node *new_node =                                            \
 			(_##_name##_node *)malloc(sizeof(_##_name##_node));                \
 		if (!new_node) {                                                       \
-			fprintf(                                                           \
-				stderr,                                                        \
-				"<<<ERROR: malloc failed inside _name push function >>>\n");   \
-			abort();                                                           \
+			ERROR("Malloc failed inside staack push");                         \
 		}                                                                      \
 		new_node->data = data;                                                 \
 		new_node->next = s->head;                                              \
@@ -58,18 +54,14 @@
                                                                                \
 	_type _name##_peek(_name *s) {                                             \
 		if (!s->head) {                                                        \
-			fprintf(stderr,                                                    \
-					"<<<ERROR: Attempting to peek at an empty stack >>>\n");   \
-			abort();                                                           \
+			ERROR("Attempting to peek at an empty stack");                     \
 		}                                                                      \
 		return s->head->data;                                                  \
 	}                                                                          \
                                                                                \
 	_type _name##_pop(_name *s) {                                              \
 		if (!s->head) {                                                        \
-			fprintf(stderr,                                                    \
-					"<<<ERROR: Attempting to pop an empty stack >>>\n");       \
-			abort();                                                           \
+			ERROR("Attempting to pop an empty stack");                         \
 		}                                                                      \
                                                                                \
 		_##_name##_node *prev_head = s->head;                                  \
@@ -104,10 +96,7 @@
                                                                                \
 	_type _name##_get_next(_name##_iter *it) {                                 \
 		if (!it->has_next) {                                                   \
-			fprintf(stderr,                                                    \
-					"<<< ERROR: Stack iterator attempts to acces element "     \
-					"that doesnt exsist!\n >>>\n");                            \
-			abort();                                                           \
+			ERROR("Stack iterator doesnt have a next value");                  \
 		}                                                                      \
 		_type curr = it->curr->data;                                           \
 		it->curr = it->curr->next;                                             \

@@ -78,6 +78,11 @@
 		}                                                                      \
 	}                                                                          \
                                                                                \
+	void name##_free(queue *q, name##destructor d) {                           \
+		name##_clear(q, d);                                                    \
+		free(q);                                                               \
+	}                                                                          \
+                                                                               \
 	name##_iter *name##_to_iter(queue *q) {                                    \
 		if (!q)                                                                \
 			return NULL;                                                       \

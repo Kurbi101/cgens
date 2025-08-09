@@ -5,8 +5,10 @@
 #ifndef TREE_H
 #define TREE_H
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "error.h"
 
 #define DEFINE_TREE(_node_name, _type, _cmp)                                   \
 	typedef struct _node_name _node_name;                                      \
@@ -20,6 +22,7 @@
                                                                                \
 	_node_name *init_##_node_name(_type data) {                                \
 		_node_name *__node = (_node_name *)malloc(sizeof(_node_name));         \
+		if (!__node) ERROR("Malloc failed while initializing a tree node");	   \
 		__node->left = __node->right = NULL;                                   \
 		__node->data = data;                                                   \
 		__node->height = 0;                                                    \
@@ -75,15 +78,15 @@
 		return y;                                                              \
 	}                                                                          \
                                                                                \
-	_node_name *_node_name##_insert(_node_name *node, _type key) {                          \
+	_node_name *_node_name##_insert(_node_name *node, _type key) {             \
 		if (!node) {                                                           \
-			node = init_node(key);                                             \
+			node = init_##_node_name(key);                                     \
 			return node;                                                       \
 		}                                                                      \
 		if (_cmp(key, node->data) < 0) {                                       \
-			node->left = _node_name##_insert(node->left, key);                              \
+			node->left = _node_name##_insert(node->left, key);                 \
 		} else if (_cmp(key, node->data) > 0) {                                \
-			node->right = _node_name##_insert(node->right, key);                            \
+			node->right = _node_name##_insert(node->right, key);               \
 		} else {                                                               \
 			return node;                                                       \
 		}                                                                      \
@@ -121,7 +124,7 @@
 		if (_cmp(key, root->data) < 0)                                         \
 			root->left = _node_name##_remove(root->left, key);                 \
 		else if (_cmp(key, root->data) > 0)                                    \
-			_node_name##_remove(root->right, key);                             \
+			root->right = _node_name##_remove(root->right, key);               \
 		else {                                                                 \
                                                                                \
 			if (!root->left || !root->right) {                                 \
@@ -142,9 +145,9 @@
 		}                                                                      \
 		if (!root)                                                             \
 			return root;                                                       \
-		root->height =                                                         \
-			1 + __node_max(__##_node_name##_get_height(root->left),            \
-						   __##_node_name##_get_height(root->right));          \
+		root->height = 1 + __##_node_name##_max(                               \
+							   __##_node_name##_get_height(root->left),        \
+							   __##_node_name##_get_height(root->right));      \
 		int balance = _name##_get_balance(root);                               \
                                                                                \
 		if (balance > 1 && _name##_get_balance(root->left) >= 0) {             \
@@ -166,5 +169,33 @@
 		}                                                                      \
                                                                                \
 		return root;                                                           \
+	}                                                                          \
+                                                                               \
+	bool _node_name##_contains(_node_name *root, _type key) {                  \
+		if (!root) {                                                           \
+			return false;                                                      \
+		}                                                                      \
+		if (_cmp(key, root->data) < 0)                                         \
+			return _node_name##_contains(root->left, key);                     \
+		else if (_cmp(key, root->data) > 0)                                    \
+			return _node_name##_contains(root->right, key);                    \
+		else {                                                                 \
+			return true;                                                       \
+		}                                                                      \
+	}                                                                          \
+	size_t _node_name##_size(_node_name *root) {                               \
+		if (!root)                                                             \
+			return 0;                                                          \
+		return 1 + _node_name##_size(root->left) +                             \
+			   _node_name##_size(root->right);                                 \
+	}                                                                          \
+                                                                               \
+	_node_name *_node_name##_insert_replace(_node_name *root, _type key) {     \
+		if (_node_name##_contains(root, key)) {                                \
+			root = _node_name##_remove(root, key);                             \
+		}                                                                      \
+		root = _node_name##_insert(root, key);                                 \
+		return root;                                                           \
 	}
+
 #endif
